@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 78698c451ef6
+Revision ID: 878505121dd0
 Revises: 
-Create Date: 2020-05-14 00:39:56.005383
+Create Date: 2020-05-16 05:51:34.243365
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '78698c451ef6'
+revision = '878505121dd0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -63,20 +63,6 @@ def upgrade():
     )
     op.create_index(op.f('ix_trade_status_status'), 'trade_status', ['status'], unique=True)
     op.create_index(op.f('ix_trade_status_uuid'), 'trade_status', ['uuid'], unique=True)
-    op.create_table('trade_strategy',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('uuid', sa.String(length=36), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
-    sa.Column('name', sa.String(length=64), nullable=True),
-    sa.Column('description', sa.String(length=256), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_trade_strategy_created_at'), 'trade_strategy', ['created_at'], unique=False)
-    op.create_index(op.f('ix_trade_strategy_description'), 'trade_strategy', ['description'], unique=True)
-    op.create_index(op.f('ix_trade_strategy_name'), 'trade_strategy', ['name'], unique=True)
-    op.create_index(op.f('ix_trade_strategy_updated_at'), 'trade_strategy', ['updated_at'], unique=False)
-    op.create_index(op.f('ix_trade_strategy_uuid'), 'trade_strategy', ['uuid'], unique=True)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.String(length=36), nullable=True),
@@ -122,6 +108,22 @@ def upgrade():
     op.create_index(op.f('ix_trade_account_name'), 'trade_account', ['name'], unique=True)
     op.create_index(op.f('ix_trade_account_updated_at'), 'trade_account', ['updated_at'], unique=False)
     op.create_index(op.f('ix_trade_account_uuid'), 'trade_account', ['uuid'], unique=True)
+    op.create_table('trade_strategy',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('uuid', sa.String(length=36), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.Column('name', sa.String(length=64), nullable=True),
+    sa.Column('description', sa.String(length=256), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_trade_strategy_created_at'), 'trade_strategy', ['created_at'], unique=False)
+    op.create_index(op.f('ix_trade_strategy_description'), 'trade_strategy', ['description'], unique=True)
+    op.create_index(op.f('ix_trade_strategy_name'), 'trade_strategy', ['name'], unique=True)
+    op.create_index(op.f('ix_trade_strategy_updated_at'), 'trade_strategy', ['updated_at'], unique=False)
+    op.create_index(op.f('ix_trade_strategy_uuid'), 'trade_strategy', ['uuid'], unique=True)
     op.create_table('trade',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.String(length=36), nullable=True),
@@ -138,9 +140,7 @@ def upgrade():
     sa.Column('strategy_id', sa.Integer(), nullable=True),
     sa.Column('account_id', sa.Integer(), nullable=True),
     sa.Column('security_id', sa.Integer(), nullable=True),
-    sa.Column('broker_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['account_id'], ['trade_account.id'], ),
-    sa.ForeignKeyConstraint(['broker_id'], ['broker.id'], ),
     sa.ForeignKeyConstraint(['position_id'], ['trade_position.id'], ),
     sa.ForeignKeyConstraint(['security_id'], ['security.id'], ),
     sa.ForeignKeyConstraint(['status_id'], ['trade_status.id'], ),
@@ -181,6 +181,12 @@ def downgrade():
     op.drop_index(op.f('ix_trade_entry_timestamp'), table_name='trade')
     op.drop_index(op.f('ix_trade_created_at'), table_name='trade')
     op.drop_table('trade')
+    op.drop_index(op.f('ix_trade_strategy_uuid'), table_name='trade_strategy')
+    op.drop_index(op.f('ix_trade_strategy_updated_at'), table_name='trade_strategy')
+    op.drop_index(op.f('ix_trade_strategy_name'), table_name='trade_strategy')
+    op.drop_index(op.f('ix_trade_strategy_description'), table_name='trade_strategy')
+    op.drop_index(op.f('ix_trade_strategy_created_at'), table_name='trade_strategy')
+    op.drop_table('trade_strategy')
     op.drop_index(op.f('ix_trade_account_uuid'), table_name='trade_account')
     op.drop_index(op.f('ix_trade_account_updated_at'), table_name='trade_account')
     op.drop_index(op.f('ix_trade_account_name'), table_name='trade_account')
@@ -196,12 +202,6 @@ def downgrade():
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_index(op.f('ix_user_created_at'), table_name='user')
     op.drop_table('user')
-    op.drop_index(op.f('ix_trade_strategy_uuid'), table_name='trade_strategy')
-    op.drop_index(op.f('ix_trade_strategy_updated_at'), table_name='trade_strategy')
-    op.drop_index(op.f('ix_trade_strategy_name'), table_name='trade_strategy')
-    op.drop_index(op.f('ix_trade_strategy_description'), table_name='trade_strategy')
-    op.drop_index(op.f('ix_trade_strategy_created_at'), table_name='trade_strategy')
-    op.drop_table('trade_strategy')
     op.drop_index(op.f('ix_trade_status_uuid'), table_name='trade_status')
     op.drop_index(op.f('ix_trade_status_status'), table_name='trade_status')
     op.drop_table('trade_status')

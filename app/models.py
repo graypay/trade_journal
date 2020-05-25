@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
 
     trades = db.relationship('Trade', backref=backref("user", lazy="joined"))
     accounts = db.relationship('TradeAccount', backref=backref("user", lazy="joined"))
+    strategies = db.relationship('TradeStrategy', backref=backref("user", lazy="joined"))
 
     def __init__(self, username, email, password):
         self.username = username
@@ -41,6 +42,31 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def to_dict(self):
+        data = {
+            "uuid": self.uuid,
+            "username": self.username,
+            "email": self.email,
+            "_meta": {
+                "self": "URL FOR THE USER"
+            }
+        }
+        return data
+
+    def create_from_dict(self, data):
+        for field in ['username', 'email']:
+            setattr(self, field, data[field])
+
+        timestamp = datetime.utcnow()
+
+        for field in ['created_at', 'updated_at']:
+            setattr(self, field, timestamp)
+
+        self.set_uuid()
+
+        if 'password' in data:
+            self.set_password(data['password'])
+
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,20 +85,18 @@ class Trade(db.Model):
     strategy_id = db.Column(db.ForeignKey('trade_strategy.id'))
     account_id = db.Column(db.ForeignKey('trade_account.id'))
     security_id = db.Column(db.ForeignKey('security.id'))
-    broker_id = db.Column(db.ForeignKey('broker.id'))
 
     notes = db.relationship('TradeNote', backref=backref("user", lazy="joined"))
 
-    def __init__(self, user, broker, account, security, position, shares, entry_time, entry_price, strategy):
+    def __init__(self, user, account, security, position, shares, entry_time, entry_price, strategy):
         # TODO: learn how to create multiple things at once in SQLAlchemy
 
         self.user = user
-        self.broker = broker
         self.account = account
         self.security = security
         self.position = position
         self.shares = int(shares)
-        self.entry_timestamp = datetime.strptime(entry_time)
+        self.entry_timestamp = entry_time
         self.entry_price = float(entry_price)
         self.strategy = strategy
 
@@ -88,7 +112,7 @@ class Trade(db.Model):
 
         uuid_parents = [
             self.user.uuid,
-            self.broker.uuid,
+            self.account.broker.uuid,
             self.account.uuid,
             self.security.uuid,
             self.entry_timestamp,
@@ -96,14 +120,17 @@ class Trade(db.Model):
             self.shares
         ]
 
-        self.uuid = self.build_uuid(uuid_parents)
+        self.uuid = str(self.build_uuid(uuid_parents))
 
     def build_uuid(self, uuids):
         # This loop should build the final uuid based on the parent UUIDs in a cannonical way
         # TODO: make sure this works correctly
         temp_uuid = None
-        for i, parent in enumerate(uuids):
-            temp_uuid = uuid.uuid5(parent, str(uuids[i+1]))
+        for i, item in enumerate(uuids):
+            if i == 0:
+                temp_uuid = uuid.uuid5(NAMESPACE_GPFIX, str(item))
+            else:
+                temp_uuid = uuid.uuid5(temp_uuid, str(item))
 
         return temp_uuid
 
@@ -129,7 +156,7 @@ class Security(db.Model):
 
     def set_uuid(self):
         # TODO generate based on exchange UUID
-        self.uuid = str(uuid.uuid5(self.exchange.uuid, self.ticker))
+        self.uuid = str(uuid.uuid5(uuid.UUID(self.exchange.uuid), self.ticker))
 
 
 class Exchange(db.Model):
@@ -159,7 +186,7 @@ class TradeStatus(db.Model):
 
     trades = db.relationship('Trade', backref=backref("status", lazy="joined"))
 
-    def __init__(self, status, description):
+    def __init__(self, status, description=None):
         self.status = status
         self.description = description
         self.set_uuid()
@@ -270,11 +297,14 @@ class TradeStrategy(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(256), index=True, unique=True)
 
+    user_id = db.Column(db.ForeignKey('user.id'))
+
     trades = db.relationship('Trade', backref=backref("strategy", lazy="joined"))
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, user):
         self.name = name
         self.description = description
+        self.user = user
         now = datetime.utcnow()
         self.created_at = now
         self.updated_at = now
