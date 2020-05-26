@@ -214,7 +214,7 @@ positions_to_add = ["LONG", "SHORT"]
 for position in positions_to_add:
     pos = TradePosition.query.filter_by(position=position).first()
     if pos is not None:
-        print("{} already exists, skipping...".format(trade_status))
+        print("{} already exists, skipping...".format(position))
         continue
 
     pos = TradePosition(position=position)
