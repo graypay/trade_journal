@@ -226,12 +226,19 @@ for position in positions_to_add:
 print("Adding Trades")
 trades_to_add = []
 gpaynter = User.query.filter_by(username="gpaynter").first()
+ayx = Security.query.filter_by(ticker="AYX").first()
+if ayx is None:
+    ayx = Security(ticker="AYX", full_name="Alteryx, Inc.", exchange=Exchange.query.filter_by(name="NYSE").first())
+    print("Adding {}".format(ayx))
+    db.session.add(ayx)
+    do_or_do_not_there_is_no_try()
+
 time_format = "%m/%d/%y %I:%M:%S %p"
 
 t1 = Trade(
     user=gpaynter,
     account=TradeAccount.query.filter_by(user=gpaynter).filter_by(name="ET-6012").first(),
-    security=Security(ticker="AYX", full_name="Alteryx, Inc.", exchange=Exchange.query.filter_by(name="NYSE").first()),
+    security=ayx,
     position=TradePosition.query.filter_by(position="LONG").first(),
     shares=8,
     entry_time=datetime.strptime("05/15/20 11:22:38 AM", time_format),
