@@ -10,8 +10,6 @@ app_instance = app.create_app()
 app_instance.app_context().push()
 etrade_df = pd.read_csv("../data/Margin_Txn_History.csv", skiprows=[0, 1, 3])
 
-
-
 for row in etrade_df.itertuples():
     # print(row)
     # print(row.TransactionDate, row.Symbol)
@@ -22,10 +20,11 @@ for row in etrade_df.itertuples():
 
     if row.TransactionType == "Bought":
         # Open a new trade
+        pass
 
     if row.TransactionType == "Sold":
         # close/split the original trade
-        
+        pass
 
     if row.TransactionType not in ["Bought", "Sold"]:
         # print("Skipping row:{}".format(row))
