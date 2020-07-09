@@ -4,11 +4,9 @@ across multiple accounts and/or trading strategies.
 
 # Prerequisites
 * Python 3
-* (see [requirements.txt]() for dependencies)
-##   
+* See [requirements.txt](requirements.txt) for dependencies   
 
 # Installation
-This app was written for python 3.7
 Recommend running in a virtual environment:
 
 ```bash
@@ -57,3 +55,19 @@ $ (venv) flask run
 ```
 
 Open a browser to http://127.0.0.1:5000/ to load the app. Currently, the seeded data will show under the [Journal](http://127.0.0.1:5000/journal) link.
+
+# Future plans
+* API integration:
+  * E*Trade
+  * TDAmeritrade
+  * Tastyworks
+  * Tradingview
+* Metrics:
+  * Profit/Loss tracking
+  * Total market exposure
+  * Strategy win/loss rates
+  * Position size per account calculator
+ * Data feeds:
+   * Real-time quotes
+   * Options quotes
+ 

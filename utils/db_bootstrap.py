@@ -222,42 +222,4 @@ for position in positions_to_add:
     db.session.add(pos)
     do_or_do_not_there_is_no_try()
 
-# # add trades
-# print("Adding Trades")
-# trades = [
-#     {
-#         "user": "gpaynter",
-#         "account": "ET-6012",
-#         "ticker": "AYX",
-#         "entry_timestamp": "05/15/20 11:22:38 AM",
-#         "entry_price": 128.53,
-#         "shares": 8,
-#         "strategy": "SwingTrader"
-#     },
-#     {
-#         "user": "gpaynter",
-#         "account": "ET-0715",
-#         "ticker": "AAPL",
-#         "entry_timestamp": "06/15/20 1:55:57 PM",
-#         "entry_price": 42.30,
-#         "shares": 20,
-#         "strategy": "SwingTrader"
-#     }
-# ]
-#
-# trades_to_add = []
-# with db.session.no_autoflush:
-#     for trade_data in trades:
-#         trade = Trade()
-#         trade.create_from_dict(trade_data)
-#
-#         trd = Trade.query.filter_by(uuid=trade.uuid).first()
-#         if trd is not None:
-#             print("{} already exists, skipping...".format(trade))
-#             continue
-#
-#         print("Adding {}".format(trade))
-#         db.session.add(trade)
-#         do_or_do_not_there_is_no_try()
-
 print("Done")

@@ -141,4 +141,7 @@ dmypy.json
 cython_debug/
 
 *.db
+*.csv
+*.log.*
 /logs
+/data
