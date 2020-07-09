@@ -1,0 +1,10 @@
+{
+  "user": "gpaynter",
+  "account": "ET-0715",
+  "ticker": "AAPL",
+  "entry_timestamp": "5/11/2020",
+  "entry_price": 15.00,
+  "shares": 10,
+  "strategy": "Swingtrader",
+  "notes": "Test Strategy"
+}

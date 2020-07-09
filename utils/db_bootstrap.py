@@ -126,7 +126,7 @@ accounts_to_add.append(wb_5493)
 for account in accounts_to_add:
     acct = TradeAccount.query.filter_by(user=User.query.filter_by(username=account['user']).first()).filter_by(name=account['name']).first()
     if acct is not None:
-        print("{} already exists, skipping...".format(account))
+        print("{} already exists, skipping...".format(account['name']))
         continue
 
     # TODO: if something here doesn't exist, it should be added
@@ -222,36 +222,42 @@ for position in positions_to_add:
     db.session.add(pos)
     do_or_do_not_there_is_no_try()
 
-# add trades
-print("Adding Trades")
-trades_to_add = []
-gpaynter = User.query.filter_by(username="gpaynter").first()
-ayx = Security.query.filter_by(ticker="AYX").first()
-if ayx is None:
-    ayx = Security(ticker="AYX", full_name="Alteryx, Inc.", exchange=Exchange.query.filter_by(name="NYSE").first())
-    print("Adding {}".format(ayx))
-    db.session.add(ayx)
-    do_or_do_not_there_is_no_try()
-
-time_format = "%m/%d/%y %I:%M:%S %p"
-
-t1 = Trade(
-    user=gpaynter,
-    account=TradeAccount.query.filter_by(user=gpaynter).filter_by(name="ET-6012").first(),
-    security=ayx,
-    position=TradePosition.query.filter_by(position="LONG").first(),
-    shares=8,
-    entry_time=datetime.strptime("05/15/20 11:22:38 AM", time_format),
-    entry_price=128.53,
-    strategy=TradeStrategy.query.filter_by(name="SwingTrader").first()
-)
-trades_to_add.append(t1)
-
-for trade in trades_to_add:
-    print("Adding {}".format(trade))
-    db.session.add(trade)
-    do_or_do_not_there_is_no_try()
+# # add trades
+# print("Adding Trades")
+# trades = [
+#     {
+#         "user": "gpaynter",
+#         "account": "ET-6012",
+#         "ticker": "AYX",
+#         "entry_timestamp": "05/15/20 11:22:38 AM",
+#         "entry_price": 128.53,
+#         "shares": 8,
+#         "strategy": "SwingTrader"
+#     },
+#     {
+#         "user": "gpaynter",
+#         "account": "ET-0715",
+#         "ticker": "AAPL",
+#         "entry_timestamp": "06/15/20 1:55:57 PM",
+#         "entry_price": 42.30,
+#         "shares": 20,
+#         "strategy": "SwingTrader"
+#     }
+# ]
+#
+# trades_to_add = []
+# with db.session.no_autoflush:
+#     for trade_data in trades:
+#         trade = Trade()
+#         trade.create_from_dict(trade_data)
+#
+#         trd = Trade.query.filter_by(uuid=trade.uuid).first()
+#         if trd is not None:
+#             print("{} already exists, skipping...".format(trade))
+#             continue
+#
+#         print("Adding {}".format(trade))
+#         db.session.add(trade)
+#         do_or_do_not_there_is_no_try()
 
 print("Done")
-
-
